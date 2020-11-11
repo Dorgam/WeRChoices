@@ -1,0 +1,13 @@
+{
+  "interactionType": "moral",
+  "requestText": "My Liege, the citizens are tired from the harvest and would like to hold the annual lunar festival. It requires 10 gold coins.",
+  "yesResponse": {
+    "gold": "-10",
+    "kingdomMentalHealth": "10",
+    "responseText": "Very well, I will let them know the bad news."
+  },
+  "noResponse": {
+    "kingdomMentalHealth": "10",
+    "responseText": "Excellent, I shall tell the town cryer immediately!"
+  }
+}

@@ -7,14 +7,15 @@ using UnityEngine;
 public class NPCBehavior : MonoBehaviour
 {
     private Animator _animator;
-    [SerializeField] private GameObject _eventPanel;
+    private GameObject _eventPanel;
     private DOTweenPath _path;
     private Tween _pathTween;
 
     private void Awake()
     {
+        _eventPanel = GameObject.FindWithTag("EventPanel").transform.GetChild(0).gameObject;
         _animator = GetComponent<Animator>();
-        _path = GetComponent<DOTweenPath>();
+        _path = GetComponentInParent<DOTweenPath>();
     }
 
     private void Start()
@@ -27,12 +28,10 @@ public class NPCBehavior : MonoBehaviour
 
     private void OnReachingWaypoint(int index)
     {
-        if (index == 3) // Reached King
-        {
-            _animator.SetTrigger("Idle");
-            _eventPanel.SetActive(true);
-            _pathTween.Pause();
-        }
+        if (index != 3) return;
+        _animator.SetTrigger("Idle");
+        _eventPanel.SetActive(true);
+        _pathTween.Pause();
     }
 
     public void CloseEventPanel()

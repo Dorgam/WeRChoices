@@ -1,0 +1,11 @@
+{
+  "interactionType": "wealth",
+  "requestText": "My Lord, our best knight, Sir Leansalot has returned with discovered treasure. Shall he put it in the warchest or put it back to where he found it?.",
+  "yesResponse": {
+    "gold": "-20",
+    "responseText": "Bad news my Lord, the Ferguson clan torched part of our crops, they saw Leansalot take their treasure."
+  },
+  "noResponse": {
+    "repsonseText": "He has returned it Sir."
+  }
+}

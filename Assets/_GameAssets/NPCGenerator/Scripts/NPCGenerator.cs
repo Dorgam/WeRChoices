@@ -7,20 +7,17 @@ using Random = UnityEngine.Random;
 
 public class NPCGenerator : MonoBehaviour
 {
-    [SerializeField] private Transform spawnPoint;
-    [SerializeField] private string[] sampleDescriptors;
-    
-    private GameObject[] _bodies;
-    private GameObject[] _heads;
-    private GameObject[] _hairs;
-    private readonly List<string[]> _bodiesDescriptors = new List<string[]>();
-    private readonly List<string[]> _headsDescriptors = new List<string[]>();
-    private readonly List<string[]> _hairsDescriptors = new List<string[]>();
-    private readonly string[] _races = new[] {"African", "Caucasian"};
-    private readonly string[] _sexes = new[] {"Male", "Female"};
-    private readonly string[] _colors = new[] {"Red", "White", "Black", "Purple", "Green", "Blue", "Pink", "Yellow", "Orange", "Brown"};
-    private readonly string[] _emotions = new[] {"Normal", "Shy", "Shock", "Crying"};
-    private readonly string[] _roles = new[] {"Army", "Citizen", "General", "Hunter", "Royal", "Noble", "Barbarian", "King"};
+    private static GameObject[] _bodies;
+    private static GameObject[] _heads;
+    private static GameObject[] _hairs;
+    private static readonly List<string[]> BodiesDescriptors = new List<string[]>();
+    private static readonly List<string[]> HeadsDescriptors = new List<string[]>();
+    private static readonly List<string[]> HairsDescriptors = new List<string[]>();
+    private static readonly string[] Races = new[] {"African", "Caucasian"};
+    private static readonly string[] Sexes = new[] {"Male", "Female"};
+    private static readonly string[] Colors = new[] {"Red", "White", "Black", "Purple", "Green", "Blue", "Pink", "Yellow", "Orange", "Brown"};
+    private static readonly string[] Emotions = new[] {"Normal", "Shy", "Shock", "Crying"};
+    private static readonly string[] Roles = new[] {"Army", "Citizen", "General", "Hunter", "Royal", "Noble", "Barbarian", "King"};
 
     private void Awake()
     {
@@ -30,40 +27,33 @@ public class NPCGenerator : MonoBehaviour
 
         foreach (GameObject body in _bodies)
         {
-            _bodiesDescriptors.Add(GetPartDescriptors(body));
+            BodiesDescriptors.Add(GetPartDescriptors(body));
         }
 
         foreach (GameObject head in _heads)
         {
-            _headsDescriptors.Add(GetPartDescriptors(head));
+            HeadsDescriptors.Add(GetPartDescriptors(head));
         }
         
         foreach (GameObject hair in _hairs)
         {
-            _hairsDescriptors.Add(GetPartDescriptors(hair));
+            HairsDescriptors.Add(GetPartDescriptors(hair));
         }
     }
 
-    private void Start()
+    public static GameObject GenerateNPC(string[] descriptors, Transform location)
     {
-        var body = GenerateBase(sampleDescriptors);
-        var npc = Instantiate(body, spawnPoint.position, Quaternion.identity);
-        var unionDescriptors = sampleDescriptors.Union(GetPartDescriptors(body)).ToArray();
+        var body = GenerateBase(descriptors);
+        var npc = Instantiate(body, location);
+        var unionDescriptors = descriptors.Union(GetPartDescriptors(body)).ToArray();
         var head = GenerateHead(unionDescriptors);
         var hair = GenerateHair(unionDescriptors);
         npc.GetComponent<CharacterParts>().ChangeHead(head);
         npc.GetComponent<CharacterParts>().ChangeHair(hair);
-        
-        /*var body = GenerateBase(sampleDescriptors);
-        var unionDescriptors = sampleDescriptors.Union(GetPartDescriptors(body)).ToArray();
-        var npc = Instantiate(GenerateBase(sampleDescriptors), spawnPoint.position, Quaternion.identity);
-        var head = Instantiate(GenerateHead(unionDescriptors), spawnPoint.position, Quaternion.identity);
-        var hair = Instantiate(GenerateHair(unionDescriptors), spawnPoint.position, Quaternion.identity);
-        npc.GetComponent<CharacterParts>().ChangeHead(head);
-        npc.GetComponent<CharacterParts>().ChangeHair(hair);*/
+        return npc;
     }
 
-    public GameObject GenerateBase(string[] descriptors = null)
+    private static GameObject GenerateBase(string[] descriptors = null)
     {
         GameObject body = null;
         do
@@ -75,11 +65,11 @@ public class NPCGenerator : MonoBehaviour
         return body;
     }
 
-    private GameObject GenerateBody(string[] descriptors)
+    private static GameObject GenerateBody(string[] descriptors)
     {
         var similarityCount = new List<int>();
 
-        foreach (string[] bodyDescriptors in _bodiesDescriptors)
+        foreach (string[] bodyDescriptors in BodiesDescriptors)
         {
             similarityCount.Add(GetSimilarDescriptorsCount(descriptors, bodyDescriptors));
         }
@@ -90,12 +80,12 @@ public class NPCGenerator : MonoBehaviour
         return _bodies[selectedBodyIndex];
     }
 
-    private GameObject GenerateHead(string[] descriptors)
+    private static GameObject GenerateHead(string[] descriptors)
     {
         var newDescriptors = GetAppropriateHeadDescriptors(descriptors);
         var similarityCount = new List<int>();
 
-        foreach (string[] headDescriptors in _headsDescriptors)
+        foreach (string[] headDescriptors in HeadsDescriptors)
         {
             similarityCount.Add(GetSimilarDescriptorsCount(newDescriptors, headDescriptors));
         }
@@ -105,12 +95,12 @@ public class NPCGenerator : MonoBehaviour
         return _heads[selectedHeadIndex];
     }
 
-    private GameObject GenerateHair(string[] descriptors)
+    private static GameObject GenerateHair(string[] descriptors)
     {
         var newDescriptors = GetAppropriateHairDescriptors(descriptors);
         var similarityCount = new List<int>();
 
-        foreach (string[] hairDescriptors in _hairsDescriptors)
+        foreach (string[] hairDescriptors in HairsDescriptors)
         {
             similarityCount.Add(GetSimilarDescriptorsCount(newDescriptors, hairDescriptors));
         }
@@ -120,7 +110,7 @@ public class NPCGenerator : MonoBehaviour
         return _hairs[selectedHairIndex];
     }
     
-    private int[] GetMaxIndicesArray(List<int> similarityArray)
+    private static int[] GetMaxIndicesArray(List<int> similarityArray)
     {
         var maxSimilarityValue = similarityArray.Max();
         var maxIndices = new List<int>();
@@ -133,30 +123,30 @@ public class NPCGenerator : MonoBehaviour
         return maxIndices.ToArray();
     }
 
-    private string[] GetAppropriateHeadDescriptors(string[] descriptors)
+    private static string[] GetAppropriateHeadDescriptors(string[] descriptors)
     {
         var newDescriptors = new List<string>();
 
-        newDescriptors.Add(descriptors.Intersect(_races).Any()
-            ? descriptors.Intersect(_races).First()
-            : GetRandomElementInList(_races));
+        newDescriptors.Add(descriptors.Intersect(Races).Any()
+            ? descriptors.Intersect(Races).First()
+            : GetRandomElementInList(Races));
 
-        newDescriptors.Add(descriptors.Intersect(_emotions).Any() ? descriptors.Intersect(_races).First() : "Normal");
+        newDescriptors.Add(descriptors.Intersect(Emotions).Any() ? descriptors.Intersect(Races).First() : "Normal");
 
         return newDescriptors.ToArray();
     }
     
-    private string[] GetAppropriateHairDescriptors(string[] descriptors)
+    private static string[] GetAppropriateHairDescriptors(string[] descriptors)
     {
         var newDescriptors = new List<string>();
 
-        newDescriptors.Add(descriptors.Intersect(_sexes).Any()
-            ? descriptors.Intersect(_sexes).First()
-            : GetRandomElementInList(_sexes));
+        newDescriptors.Add(descriptors.Intersect(Sexes).Any()
+            ? descriptors.Intersect(Sexes).First()
+            : GetRandomElementInList(Sexes));
 
-        newDescriptors.Add(descriptors.Intersect(_colors).Any()
-            ? descriptors.Intersect(_colors).First()
-            : GetRandomElementInList(_colors));
+        newDescriptors.Add(descriptors.Intersect(Colors).Any()
+            ? descriptors.Intersect(Colors).First()
+            : GetRandomElementInList(Colors));
 
         return newDescriptors.ToArray();
     }
@@ -168,24 +158,23 @@ public class NPCGenerator : MonoBehaviour
         return list[index];
     }
 
-    private string[] GetRandomDescriptors()
+    private static string[] GetRandomDescriptors()
     {
         var randomDescriptors = new List<string>();
-        randomDescriptors.Add(GetRandomElementInList(_sexes));
-        randomDescriptors.Add(GetRandomElementInList(_colors));
-        randomDescriptors.Add(GetRandomElementInList(_roles));
+        randomDescriptors.Add(GetRandomElementInList(Sexes));
+        randomDescriptors.Add(GetRandomElementInList(Colors));
+        randomDescriptors.Add(GetRandomElementInList(Roles));
         return randomDescriptors.ToArray();
     }
 
-    private string[] GetPartDescriptors(GameObject part)
+    private static string[] GetPartDescriptors(GameObject part)
     {
         return part.name.Split('_');
     }
 
-    private int GetSimilarDescriptorsCount(string[] target, string[] part)
+    private static int GetSimilarDescriptorsCount(string[] target, string[] part)
     {
         var intersections = target.Intersect(part);
-        if (intersections == null) return 0;
         return intersections.Count();
     }
 }
